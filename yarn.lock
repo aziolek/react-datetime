@@ -779,12 +779,33 @@
   version "15.5.6"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.5.6.tgz#9c03d3fed70a8d517c191b7734da2879b50ca26c"
 
+"@types/react-tether@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@types/react-tether/-/react-tether-0.5.4.tgz#31c315ee9ec31e432ab451eb5fa25045efab0a96"
+  integrity sha512-1LExIXs5bgeCDR+WTtGCcFY5m72MdtUgG2piFB4CNLWf6iQBUtK7L0YKeqPb/+02eYdAyDhQpBfyBkm4pc+Iog==
+  dependencies:
+    "@types/react" "*"
+    "@types/tether" "*"
+
+"@types/react@*":
+  version "16.7.13"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.7.13.tgz#d2369ae78377356d42fb54275d30218e84f2247a"
+  integrity sha512-WhqrQLAE9z65hfcvWqZfR6qUtIazFRyb8LXqHo8440R53dAQqNkt2OlVJ3FXwqOwAXXg4nfYxt0qgBvE18o5XA==
+  dependencies:
+    "@types/prop-types" "*"
+    csstype "^2.2.0"
+
 "@types/react@^16.7.5":
   version "16.7.5"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.7.5.tgz#3c7a944a8b465eec883fac85a58b2e0caf3c3b59"
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/tether@*":
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/@types/tether/-/tether-1.4.4.tgz#0fde1ccbd2f1fad74f8f465fe6227ff3b7bff634"
+  integrity sha512-6qhsFJVMuMqaQRVyQVi3zUBLfKYyryktL0ZP0Z3zegzeQ7WKm0PZNCdl3JsaitJbzqaoQ9qsFKMfaj5MiMfcSQ==
 
 abab@^2.0.0:
   version "2.0.0"
@@ -5375,6 +5396,14 @@ react-test-renderer@^16.6.3:
     react-is "^16.6.3"
     scheduler "^0.11.2"
 
+react-tether@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-tether/-/react-tether-1.0.4.tgz#a1f0973391ba4c3c2b5c38d5be16c42f0fd96759"
+  integrity sha512-WQ3Ulj9k6to8We/rUqkX4fB5L4jYGnUEXtAxyth9kcKqf0miVOR6MYS3hJodQbpNIBB5DvA+/ZH8nlUtMupSVA==
+  dependencies:
+    prop-types "^15.6.2"
+    tether "^1.4.5"
+
 react@^16.6.3:
   version "16.6.3"
   resolved "https://registry.yarnpkg.com/react/-/react-16.6.3.tgz#25d77c91911d6bbdd23db41e70fb094cc1e0871c"
@@ -6301,6 +6330,11 @@ test-exclude@^4.2.1:
     object-assign "^4.1.0"
     read-pkg-up "^1.0.1"
     require-main-filename "^1.0.1"
+
+tether@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/tether/-/tether-1.4.5.tgz#8efd7b35572767ba502259ba9b1cc167fcf6f2c1"
+  integrity sha512-fysT1Gug2wbRi7a6waeu39yVDwiNtvwj5m9eRD+qZDSHKNghLo6KqP/U3yM2ap6TNUL2skjXGJaJJTJqoC31vw==
 
 text-table@^0.2.0:
   version "0.2.0"

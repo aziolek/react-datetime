@@ -14,6 +14,8 @@ import toUtc from "./toUtc";
 import fromUtc from "./fromUtc";
 import noop from "./noop";
 
+import TetherComponent from "react-tether";
+
 /*
 The view mode can be any of the following strings.
 */
@@ -657,25 +659,38 @@ class DateTime extends React.Component<DateTimeProps, DateTimeState> {
           }
         ])}
       >
-        {!!this.props.input &&
-          (this.props.renderInput ? (
-            <div key="i">
-              {this.props.renderInput(
-                finalInputProps,
-                this.openCalendar,
-                this.closeCalendar
-              )}
+        <TetherComponent
+          attachment="top left"
+          targetAttachment="bottom left"
+          constraints={[
+            {
+              to: "scrollParent",
+              attachment: "together both"
+            }
+          ]}
+        >
+          {!!this.props.input &&
+            (this.props.renderInput ? (
+              <div key="i">
+                {this.props.renderInput(
+                  finalInputProps,
+                  this.openCalendar,
+                  this.closeCalendar
+                )}
+              </div>
+            ) : (
+              <input {...finalInputProps} key="i" />
+            ))}
+          {this.state.open && (
+            <div className="rdtPicker">
+              <CalendarContainer
+                view={this.state.currentView}
+                viewProps={this.getComponentProps()}
+                onClickOutside={this.handleClickOutside}
+              />
             </div>
-          ) : (
-            <input {...finalInputProps} key="i" />
-          ))}
-        <div className="rdtPicker">
-          <CalendarContainer
-            view={this.state.currentView}
-            viewProps={this.getComponentProps()}
-            onClickOutside={this.handleClickOutside}
-          />
-        </div>
+          )}
+        </TetherComponent>
       </div>
     );
   }
