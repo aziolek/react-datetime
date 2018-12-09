@@ -14,7 +14,7 @@ import toUtc from "./toUtc";
 import fromUtc from "./fromUtc";
 import noop from "./noop";
 
-import TetherComponent from "react-tether";
+import TetherComponent from "./TetherComponent";
 
 /*
 The view mode can be any of the following strings.
@@ -648,6 +648,14 @@ class DateTime extends React.Component<DateTimeProps, DateTimeState> {
       ...this.props.inputProps
     };
 
+    const Calendar = () => (
+      <CalendarContainer
+        view={this.state.currentView}
+        viewProps={this.getComponentProps()}
+        onClickOutside={this.handleClickOutside}
+      />
+    );
+
     return (
       <div
         className={cc([
@@ -659,38 +667,43 @@ class DateTime extends React.Component<DateTimeProps, DateTimeState> {
           }
         ])}
       >
-        <TetherComponent
-          attachment="top left"
-          targetAttachment="bottom left"
-          constraints={[
-            {
-              to: "scrollParent",
-              attachment: "together both"
+        {this.props.input ? (
+          <TetherComponent
+            attachment="top left"
+            targetAttachment="bottom left"
+            constraints={[
+              {
+                to: "scrollParent",
+                attachment: "together both"
+              }
+            ]}
+            renderTarget={ref =>
+              this.props.input &&
+              (this.props.renderInput ? (
+                <div ref={ref} key="i">
+                  {this.props.renderInput(
+                    finalInputProps,
+                    this.openCalendar,
+                    this.closeCalendar
+                  )}
+                </div>
+              ) : (
+                <input ref={ref} {...finalInputProps} key="i" />
+              ))
             }
-          ]}
-        >
-          {!!this.props.input &&
-            (this.props.renderInput ? (
-              <div key="i">
-                {this.props.renderInput(
-                  finalInputProps,
-                  this.openCalendar,
-                  this.closeCalendar
-                )}
-              </div>
-            ) : (
-              <input {...finalInputProps} key="i" />
-            ))}
-          {this.state.open && (
-            <div className="rdtPicker">
-              <CalendarContainer
-                view={this.state.currentView}
-                viewProps={this.getComponentProps()}
-                onClickOutside={this.handleClickOutside}
-              />
-            </div>
-          )}
-        </TetherComponent>
+            renderElement={ref =>
+              this.state.open ? (
+                <div ref={ref} className="rdtPicker">
+                  <Calendar />
+                </div>
+              ) : null
+            }
+          />
+        ) : (
+          <div className="rdtPicker">
+            <Calendar />
+          </div>
+        )}
       </div>
     );
   }
