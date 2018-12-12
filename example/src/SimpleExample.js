@@ -4,10 +4,10 @@ import DateTime from "@nateradebaugh/react-datetime";
 export default class SimpleExample extends Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <h2>Simple Scenario</h2>
         <DateTime onChange={console.log} />
-      </div>
+      </React.Fragment>
     );
   }
 }

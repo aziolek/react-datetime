@@ -6,7 +6,7 @@ import startOfMonth from "date-fns/start_of_month";
 export default class ValidatedExample extends Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <h2>isValidDate</h2>
         <p>You can use "isValidDate" to disable all dates after last month.</p>
         <DateTime
@@ -15,7 +15,7 @@ export default class ValidatedExample extends Component {
           isValidDate={current => isBefore(current, startOfMonth(new Date()))}
           onChange={console.log}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }

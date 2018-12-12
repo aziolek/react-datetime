@@ -10,7 +10,7 @@ import ValidatedExample from "./ValidatedExample";
 export default class App extends Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <SimpleExample />
         <hr />
         <LocalizationExample />
@@ -21,7 +21,7 @@ export default class App extends Component {
         <hr />
         <ValidatedExample />
         <hr />
-      </div>
+      </React.Fragment>
     );
   }
 }

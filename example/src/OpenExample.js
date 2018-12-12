@@ -27,7 +27,7 @@ export default class OpenExample extends Component {
 
   render() {
     return (
-      <div>
+      <React.Fragment>
         <h2>open</h2>
         <p>
           The "open" prop is only consumed when the component is mounted. Useful
@@ -48,7 +48,7 @@ export default class OpenExample extends Component {
           onChange={console.log}
           viewMode={this.state.viewMode}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
