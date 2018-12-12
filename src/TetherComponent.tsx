@@ -1,12 +1,6 @@
-import React, { Component, isValidElement } from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Tether from "tether";
-
-if (!Tether) {
-  console.error(
-    "It looks like Tether has not been included. Please load this dependency first https://github.com/HubSpot/tether"
-  );
-}
 
 interface TetherComponentProps {
   renderTarget: any;
@@ -24,102 +18,23 @@ class TetherComponent extends Component<TetherComponentProps, never> {
 
   _tetherInstance: Tether | null = null;
 
-  componentDidMount() {
-    this._createContainer();
-    // The container is created after mounting
-    // so we need to force an update to
-    // enable tether
-    // Cannot move _createContainer into the constructor
-    // because of is a side effect: https://reactjs.org/docs/strict-mode.html#detecting-unexpected-side-effects
-    this.forceUpdate();
-  }
-
-  componentDidUpdate(prevProps) {
-    this._update();
-  }
-
-  componentWillUnmount() {
-    this._destroy();
-  }
-
-  _runRenders() {
-    // To obtain the components, we run the render functions and pass in the ref
-    // Later, when the component is mounted, the ref functions will be called
-    // and trigger a tether update
-    let targetComponent =
-      typeof this.props.renderTarget === "function"
-        ? this.props.renderTarget(this._targetNode)
-        : null;
-    let elementComponent =
-      typeof this.props.renderElement === "function"
-        ? this.props.renderElement(this._elementNode)
-        : null;
-
-    // Check if what has been returned is a valid react element
-    if (!isValidElement(targetComponent)) {
-      targetComponent = null;
-    }
-    if (!isValidElement(elementComponent)) {
-      elementComponent = null;
-    }
-
-    return {
-      targetComponent,
-      elementComponent
-    };
-  }
-
-  _createTetherInstance(tetherOptions) {
-    if (this._tetherInstance) {
-      this._destroy();
-    }
-
-    this._tetherInstance = new Tether(tetherOptions);
-  }
-
-  _destroyTetherInstance() {
-    if (this._tetherInstance) {
-      this._tetherInstance.destroy();
-
-      this._tetherInstance = null;
-    }
-  }
-
-  get _renderNode() {
-    //const { renderElementTo } = this.props;
-    //if (typeof renderElementTo === "string") {
-    //  return document.querySelector(renderElementTo);
-    //}
-
-    //return renderElementTo || document.body;
-    return document.body;
-  }
-
-  _destroy() {
-    this._destroyTetherInstance();
-    this._removeContainer();
-  }
-
-  _createContainer() {
-    // Create element node container if it hasn't been yet
-    this._removeContainer();
+  constructor(props) {
+    super(props);
 
     // Create a node that we can stick our content Component in
     this._elementParentNode = document.createElement("div");
   }
 
-  _addContainerToDOM() {
-    // Append node to the render node
-    this._renderNode!.appendChild(this._elementParentNode!);
+  componentDidMount() {
+    // Create element node container if it hasn't been yet
+    this._removeContainer();
   }
 
-  _removeContainer() {
-    if (this._elementParentNode && this._elementParentNode.parentNode) {
-      this._elementParentNode.parentNode.removeChild(this._elementParentNode);
-    }
-  }
+  componentDidUpdate() {
+    //
+    // Update
+    //
 
-  _update() {
     // If no element component provided, bail out
     const shouldDestroy =
       !this._elementNode.current || !this._targetNode.current;
@@ -130,10 +45,9 @@ class TetherComponent extends Component<TetherComponentProps, never> {
       return;
     }
 
-    this._updateTether();
-  }
-
-  _updateTether() {
+    //
+    // Update Tether
+    //
     const tetherOptions = {
       target: this._targetNode.current,
       element: this._elementParentNode,
@@ -147,23 +61,48 @@ class TetherComponent extends Component<TetherComponentProps, never> {
       ]
     };
 
-    this._addContainerToDOM();
+    // Append node to the render node
+    const renderNode = document.body;
+    renderNode!.appendChild(this._elementParentNode!);
 
     if (this._tetherInstance) {
       this._tetherInstance.setOptions(tetherOptions);
     } else {
-      this._createTetherInstance(tetherOptions);
+      this._tetherInstance = new Tether(tetherOptions);
     }
 
-    this._tetherInstance!.position();
+    this._tetherInstance.position();
+  }
+
+  componentWillUnmount() {
+    this._destroy();
+  }
+
+  _destroy() {
+    if (this._tetherInstance) {
+      this._tetherInstance.destroy();
+      this._tetherInstance = null;
+    }
+
+    this._removeContainer();
+  }
+
+  _removeContainer() {
+    if (this._elementParentNode && this._elementParentNode.parentNode) {
+      this._elementParentNode.parentNode.removeChild(this._elementParentNode);
+
+      // The container is created after mounting
+      // so we need to force an update to
+      // enable tether
+      // Cannot move _createContainer into the constructor
+      // because of is a side effect: https://reactjs.org/docs/strict-mode.html#detecting-unexpected-side-effects
+      this.forceUpdate();
+    }
   }
 
   render() {
-    const { targetComponent, elementComponent } = this._runRenders();
-
-    if (!targetComponent || !this._elementParentNode) {
-      return null;
-    }
+    const targetComponent = this.props.renderTarget(this._targetNode);
+    const elementComponent = this.props.renderElement(this._elementNode);
 
     return (
       <React.Fragment>
