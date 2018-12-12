@@ -669,14 +669,6 @@ class DateTime extends React.Component<DateTimeProps, DateTimeState> {
       >
         {this.props.input ? (
           <TetherComponent
-            attachment="top left"
-            targetAttachment="bottom left"
-            constraints={[
-              {
-                to: "scrollParent",
-                attachment: "together both"
-              }
-            ]}
             renderTarget={ref =>
               this.props.input &&
               (this.props.renderInput ? (
