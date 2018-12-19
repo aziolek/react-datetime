@@ -7,8 +7,6 @@
   display: inline-block;
 }
 .rdtPicker {
-  display: none;
-  position: absolute;
   width: 250px;
   padding: 4px;
   margin-top: 1px;
@@ -178,9 +176,6 @@ td.rdtYear:hover {
 
 .rdtCounter {
   height: 100px;
-}
-
-.rdtCounter {
   width: 40px;
 }
 
