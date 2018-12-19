@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Tether from "tether";
+import Tether from "./tether";
 
 interface TetherComponentProps {
   renderTarget: any;
