@@ -1,23 +1,23 @@
-const TetherBase = { modules: [] };
+const TetherBase: any = { modules: [] };
 
-let zeroElement = null;
+let zeroElement: any = null;
 
 // Same as native getBoundingClientRect, except it takes into account parent <frame> offsets
 // if the element lies within a nested document (<frame> or <iframe>-like).
-function getActualBoundingClientRect(node) {
-  let boundingRect = node.getBoundingClientRect();
+function getActualBoundingClientRect(node: any) {
+  const boundingRect = node.getBoundingClientRect();
 
   // The original object returned by getBoundingClientRect is immutable, so we clone it
   // We can't use extend because the properties are not considered part of the object by hasOwnProperty in IE9
-  let rect = {};
+  const rect: any = {};
   for (const k in boundingRect) {
     rect[k] = boundingRect[k];
   }
 
   if (node.ownerDocument !== document) {
-    let frameElement = node.ownerDocument.defaultView.frameElement;
+    const frameElement = node.ownerDocument.defaultView.frameElement;
     if (frameElement) {
-      let frameRect = getActualBoundingClientRect(frameElement);
+      const frameRect = getActualBoundingClientRect(frameElement);
       rect.top += frameRect.top;
       rect.bottom += frameRect.top;
       rect.left += frameRect.left;
@@ -28,12 +28,12 @@ function getActualBoundingClientRect(node) {
   return rect;
 }
 
-function getScrollParents(el) {
+function getScrollParents(el: any): any[] {
   // In firefox if the el is inside an iframe with display: none; window.getComputedStyle() will return null;
   // https://bugzilla.mozilla.org/show_bug.cgi?id=548397
   const computedStyle = getComputedStyle(el) || {};
   const position = computedStyle.position;
-  let parents = [];
+  const parents: any[] = [];
 
   if (position === "fixed") {
     return [el];
@@ -41,7 +41,7 @@ function getScrollParents(el) {
 
   let parent = el;
   while ((parent = parent.parentNode) && parent && parent.nodeType === 1) {
-    let style;
+    let style: any;
     try {
       style = getComputedStyle(parent);
     } catch (err) {
@@ -79,17 +79,17 @@ const uniqueId = (() => {
   return () => ++id;
 })();
 
-const zeroPosCache = {};
+const zeroPosCache: any = {};
 const getOrigin = () => {
   // getBoundingClientRect is unfortunately too accurate.  It introduces a pixel or two of
   // jitter as the user scrolls that messes with our ability to detect if two positions
   // are equivilant or not.  We place an element at the top left of the page that will
   // get the same jitter, so we can cancel the two out.
-  let node = zeroElement;
+  let node: any = zeroElement;
   if (!node || !document.body.contains(node)) {
     node = document.createElement("div");
     node.setAttribute("data-tether-id", uniqueId());
-    extend(node.style, {
+    (extend as any)(node.style, {
       top: 0,
       left: 0,
       position: "absolute"
@@ -117,19 +117,18 @@ function removeUtilElements() {
   if (zeroElement) {
     document.body.removeChild(zeroElement);
   }
+
   zeroElement = null;
 }
 
-function getBounds(el) {
-  let doc;
+function getBounds(el: IElement): IRect {
+  let doc: Document | null = null;
   if (el === document) {
     doc = document;
     el = document.documentElement;
-  } else {
+  } else if (el instanceof Node) {
     doc = el.ownerDocument;
   }
-
-  const docEl = doc.documentElement;
 
   const box = getActualBoundingClientRect(el);
 
@@ -145,19 +144,22 @@ function getBounds(el) {
     box.height = document.body.scrollHeight - box.top - box.bottom;
   }
 
-  box.top = box.top - docEl.clientTop;
-  box.left = box.left - docEl.clientLeft;
-  box.right = doc.body.clientWidth - box.width - box.left;
-  box.bottom = doc.body.clientHeight - box.height - box.top;
+  if (doc && doc.documentElement) {
+    const docEl = doc.documentElement;
+    box.top = box.top - docEl.clientTop;
+    box.left = box.left - docEl.clientLeft;
+    box.right = doc.body.clientWidth - box.width - box.left;
+    box.bottom = doc.body.clientHeight - box.height - box.top;
+  }
 
   return box;
 }
 
-function getOffsetParent(el) {
+function getOffsetParent(el: HTMLElement) {
   return el.offsetParent || document.documentElement;
 }
 
-let _scrollBarSize = null;
+let _scrollBarSize: ISize | null = null;
 function getScrollBarSize() {
   if (_scrollBarSize) {
     return _scrollBarSize;
@@ -167,7 +169,7 @@ function getScrollBarSize() {
   inner.style.height = "200px";
 
   const outer = document.createElement("div");
-  extend(outer.style, {
+  (extend as any)(outer.style, {
     position: "absolute",
     top: 0,
     left: 0,
@@ -198,14 +200,14 @@ function getScrollBarSize() {
   return _scrollBarSize;
 }
 
-function extend(out = {}) {
-  const args = [];
+function extend(out = {}): object {
+  const args: any[] = [];
 
   Array.prototype.push.apply(args, arguments);
 
   args.slice(1).forEach(obj => {
     if (obj) {
-      for (let key in obj) {
+      for (const key in obj) {
         if ({}.hasOwnProperty.call(obj, key)) {
           out[key] = obj[key];
         }
@@ -216,7 +218,7 @@ function extend(out = {}) {
   return out;
 }
 
-function removeClass(el, name) {
+function removeClass(el: Element, name: string) {
   if (typeof el.classList !== "undefined") {
     name.split(" ").forEach(cls => {
       if (cls.trim()) {
@@ -230,7 +232,7 @@ function removeClass(el, name) {
   }
 }
 
-function addClass(el, name) {
+function addClass(el: Element, name: string) {
   if (typeof el.classList !== "undefined") {
     name.split(" ").forEach(cls => {
       if (cls.trim()) {
@@ -244,28 +246,30 @@ function addClass(el, name) {
   }
 }
 
-function hasClass(el, name) {
+function hasClass(el: Element, name: string): boolean {
   if (typeof el.classList !== "undefined") {
     return el.classList.contains(name);
   }
+
   const className = getClassName(el);
   return new RegExp(`(^| )${name}( |$)`, "gi").test(className);
 }
 
-function getClassName(el) {
+function getClassName(el: any): string {
   // Can't use just SVGAnimatedString here since nodes within a Frame in IE have
   // completely separately SVGAnimatedString base classes
   if (el.className instanceof el.ownerDocument.defaultView.SVGAnimatedString) {
     return el.className.baseVal;
   }
+
   return el.className;
 }
 
-function setClassName(el, className) {
+function setClassName(el: Element, className: string): void {
   el.setAttribute("class", className);
 }
 
-function updateClasses(el, add, all) {
+function updateClasses(el: Element, add: string[], all: string[]) {
   // Of the set of 'all' classes, we need the 'add' classes, and only the
   // 'add' classes to be set.
   all.forEach(cls => {
@@ -281,21 +285,24 @@ function updateClasses(el, add, all) {
   });
 }
 
-const deferred = [];
+const deferred: string[] = [];
 
-const defer = fn => {
+const defer = (fn: any) => {
   deferred.push(fn);
 };
 
 const flush = () => {
-  let fn;
+  let fn: any;
   while ((fn = deferred.pop())) {
     fn();
   }
 };
 
 class Evented {
-  on(event, handler, ctx, once = false) {
+  bindings: object | undefined;
+  history: IHistoryItem[];
+
+  on(event: any, handler: any, ctx: any, once = false) {
     if (typeof this.bindings === "undefined") {
       this.bindings = {};
     }
@@ -305,11 +312,11 @@ class Evented {
     this.bindings[event].push({ handler, ctx, once });
   }
 
-  once(event, handler, ctx) {
+  once(event: any, handler: any, ctx: any) {
     this.on(event, handler, ctx, true);
   }
 
-  off(event, handler) {
+  off(event: any, handler: any) {
     if (
       typeof this.bindings === "undefined" ||
       typeof this.bindings[event] === "undefined"
@@ -320,8 +327,7 @@ class Evented {
     if (typeof handler === "undefined") {
       delete this.bindings[event];
     } else {
-      let i = 0;
-      while (i < this.bindings[event].length) {
+      for (let i = 0; i < this.bindings[event].length; ) {
         if (this.bindings[event][i].handler === handler) {
           this.bindings[event].splice(i, 1);
         } else {
@@ -331,10 +337,9 @@ class Evented {
     }
   }
 
-  trigger(event, ...args) {
+  trigger(event: any, ...args: any) {
     if (typeof this.bindings !== "undefined" && this.bindings[event]) {
-      let i = 0;
-      while (i < this.bindings[event].length) {
+      for (let i = 0; i < this.bindings[event].length; ) {
         const { handler, ctx, once } = this.bindings[event][i];
 
         let context = ctx;
@@ -372,16 +377,16 @@ TetherBase.Utils = {
   removeUtilElements
 };
 
-function within(a, b, diff = 1) {
+function within(a: number, b: number, diff = 1) {
   return a + diff >= b && b >= a - diff;
 }
 
-const transformKey = (() => {
+const transformKey: string | undefined = (() => {
   if (typeof document === "undefined") {
     return "";
   }
-  const el = document.createElement("div");
 
+  const el = document.createElement("div");
   const transforms = [
     "transform",
     "WebkitTransform",
@@ -399,7 +404,7 @@ const transformKey = (() => {
   return undefined;
 })();
 
-const tethers = [];
+const tethers: TetherClass[] = [];
 
 const position = () => {
   tethers.forEach(tether => {
@@ -408,20 +413,21 @@ const position = () => {
   flush();
 };
 
-function now() {
+function now(): number {
   if (
     typeof performance === "object" &&
     typeof performance.now === "function"
   ) {
     return performance.now();
   }
+
   return +new Date();
 }
 
 (() => {
-  let lastCall = null;
-  let lastDuration = null;
-  let pendingTimeout = null;
+  let lastCall: number | undefined = undefined;
+  let lastDuration: number | undefined = undefined;
+  let pendingTimeout: NodeJS.Timeout | null = null;
 
   const tick = () => {
     if (typeof lastDuration !== "undefined" && lastDuration > 16) {
@@ -479,7 +485,10 @@ const OFFSET_MAP = {
   right: "100%"
 };
 
-const autoToFixedAttachment = (attachment, relativeToAttachment) => {
+const autoToFixedAttachment = (
+  attachment: IParsedAttachment,
+  relativeToAttachment: IParsedAttachment
+): IParsedAttachment => {
   let { left, top } = attachment;
 
   if (left === "auto") {
@@ -493,9 +502,8 @@ const autoToFixedAttachment = (attachment, relativeToAttachment) => {
   return { left, top };
 };
 
-const attachmentToOffset = attachment => {
-  let left = attachment.left;
-  let top = attachment.top;
+const attachmentToOffset = (attachment: IParsedAttachment): IParsedOffset => {
+  let { left, top } = attachment;
 
   if (typeof OFFSET_MAP[attachment.left] !== "undefined") {
     left = OFFSET_MAP[attachment.left];
@@ -508,15 +516,21 @@ const attachmentToOffset = attachment => {
   return { left, top };
 };
 
-function addOffset(...offsets) {
+interface INumericOffset {
+  top: number;
+  left: number;
+}
+
+function addOffset(...offsets: IParsedOffset[]): INumericOffset {
   const out = { top: 0, left: 0 };
 
   offsets.forEach(({ top, left }) => {
     if (typeof top === "string") {
-      top = parseFloat(top, 10);
+      top = parseFloat(top);
     }
+
     if (typeof left === "string") {
-      left = parseFloat(left, 10);
+      left = parseFloat(left);
     }
 
     out.top += top;
@@ -526,25 +540,134 @@ function addOffset(...offsets) {
   return out;
 }
 
-function offsetToPx(offset, size) {
+function offsetToPx(offset: IParsedOffset, size: ISize): INumericOffset {
+  const numericOffset: INumericOffset = { top: 0, left: 0 };
   if (typeof offset.left === "string" && offset.left.indexOf("%") !== -1) {
-    offset.left = (parseFloat(offset.left, 10) / 100) * size.width;
-  }
-  if (typeof offset.top === "string" && offset.top.indexOf("%") !== -1) {
-    offset.top = (parseFloat(offset.top, 10) / 100) * size.height;
+    numericOffset.left = (parseFloat(offset.left) / 100) * size.width;
   }
 
-  return offset;
+  if (typeof offset.top === "string" && offset.top.indexOf("%") !== -1) {
+    numericOffset.top = (parseFloat(offset.top) / 100) * size.height;
+  }
+
+  return numericOffset;
 }
 
-const parseOffset = value => {
+const parseOffset = (value: IOffset): IParsedOffset => {
   const [top, left] = value.split(" ");
   return { top, left };
 };
-const parseAttachment = parseOffset;
+
+const parseAttachment = (value: IAttachment): IParsedAttachment => {
+  const [top, left] = value.split(" ");
+  return { top, left };
+};
+
+interface IConstraint {
+  to: any;
+  pin: true | string[];
+  attachment: string;
+  outOfBoundsClass: string;
+  pinnedClass: string;
+}
+
+type IAttachment =
+  | "top left"
+  | "top center"
+  | "top right"
+  | "middle left"
+  | "middle center"
+  | "middle right"
+  | "bottom left"
+  | "bottom center"
+  | "bottom right";
+
+type IOffset = string;
+interface IParsedOffset {
+  top: string | number;
+  left: string | number;
+}
+
+interface IParsedAttachment {
+  top: string;
+  left: string;
+}
+
+type IElement = Node | Document | HTMLElement | string | null;
+
+interface IViewPort {
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+}
+
+interface IHistoryItem {
+  page: IPage;
+  viewport: IViewPort;
+  offset?: IParsedOffset;
+}
+
+interface IOptimizations {
+  moveElement: boolean;
+  gpu: boolean;
+}
+
+interface IOptions {
+  element: IElement;
+  target: IElement;
+  attachment: IAttachment;
+  targetAttachment: IAttachment;
+  offset: IOffset;
+  targetOffset: IOffset;
+  targetModifier: "visible" | "scroll-handle";
+  enabled: boolean;
+  classes: string[];
+  classPrefix: string;
+  pinnedClass: string;
+  outOfBoundsClass: string;
+  optimizations: IOptimizations;
+  constraints: IConstraint[];
+}
+
+interface IOptionState extends IOptions {
+  addTargetClasses: boolean;
+  bodyElement: Node;
+}
+
+interface ISize {
+  width: number;
+  height: number;
+}
+
+interface IRect extends ISize {
+  top: number;
+  left: number;
+}
+
+interface IPage {
+  top: number;
+  left: number;
+  bottom?: number;
+  right?: number;
+}
 
 class TetherClass extends Evented {
-  constructor(options) {
+  element: any;
+  target: any;
+  targetModifier: any;
+  targetAttachment: IParsedAttachment;
+  attachment: IParsedAttachment;
+  offset: IParsedOffset;
+  targetOffset: IParsedOffset;
+  scrollParents: any[];
+  _cache: object;
+  enabled: boolean;
+  options: IOptionState;
+  _addAttachClasses: string[];
+  lastSize: ISize;
+
+  constructor(options: IOptions) {
     super();
     this.position = this.position.bind(this);
 
@@ -554,7 +677,7 @@ class TetherClass extends Evented {
 
     this.setOptions(options, false);
 
-    TetherBase.modules.forEach(module => {
+    TetherBase.modules.forEach((module: any) => {
       if (typeof module.initialize !== "undefined") {
         module.initialize.call(this);
       }
@@ -563,7 +686,7 @@ class TetherClass extends Evented {
     this.position();
   }
 
-  getClass(key = "") {
+  getClass(key = ""): string {
     const { classes } = this.options;
     if (typeof classes !== "undefined" && classes[key]) {
       return this.options.classes[key];
@@ -574,7 +697,7 @@ class TetherClass extends Evented {
     }
   }
 
-  setOptions(options, pos = true) {
+  setOptions(options: IOptions, pos = true) {
     const defaults = {
       offset: "0 0",
       targetOffset: "0 0",
@@ -582,19 +705,22 @@ class TetherClass extends Evented {
       classPrefix: "tether"
     };
 
-    this.options = extend(defaults, options);
+    this.options = (extend as any)(defaults, options);
 
-    let { element, target, targetModifier } = this.options;
+    const { element, target, targetModifier } = this.options;
     this.element = element;
-    this.target = target;
     this.targetModifier = targetModifier;
 
-    if (this.target === "viewport") {
-      this.target = document.body;
-      this.targetModifier = "visible";
-    } else if (this.target === "scroll-handle") {
-      this.target = document.body;
-      this.targetModifier = "scroll-handle";
+    if (typeof target === "string") {
+      if (target === "viewport") {
+        this.target = document.body;
+        this.targetModifier = "visible";
+      } else if (target === "scroll-handle") {
+        this.target = document.body;
+        this.targetModifier = "scroll-handle";
+      }
+    } else {
+      this.target = target;
     }
 
     ["element", "target"].forEach(key => {
@@ -694,7 +820,7 @@ class TetherClass extends Evented {
           return out;
         }
       } else if (this.targetModifier === "scroll-handle") {
-        let bounds;
+        let bounds: any;
         let target = this.target;
         if (target === document.body) {
           target = document.documentElement;
@@ -709,7 +835,7 @@ class TetherClass extends Evented {
           bounds = getBounds(target);
         }
 
-        const style = getComputedStyle(target);
+        const style: any = getComputedStyle(target);
 
         const hasBottomScroll =
           target.scrollWidth > target.clientWidth ||
@@ -727,7 +853,7 @@ class TetherClass extends Evented {
           parseFloat(style.borderBottomWidth) -
           scrollBottom;
 
-        const out = {
+        const out: any = {
           width: 15,
           height: height * 0.975 * (height / target.scrollHeight),
           left:
@@ -767,7 +893,7 @@ class TetherClass extends Evented {
     this._cache = {};
   }
 
-  cache(k, getter) {
+  cache(k: any, getter: any) {
     // More than one module will often need the same DOM info, so
     // we keep a cache which is cleared on each position call
     if (typeof this._cache === "undefined") {
@@ -826,7 +952,7 @@ class TetherClass extends Evented {
     }
   }
 
-  updateAttachClasses(elementAttach, targetAttach) {
+  updateAttachClasses(elementAttach: any, targetAttach: any) {
     elementAttach = elementAttach || this.attachment;
     targetAttach = targetAttach || this.targetAttachment;
     const sides = ["left", "top", "bottom", "right", "middle", "center"];
@@ -859,7 +985,7 @@ class TetherClass extends Evented {
       add.push(`${this.getClass("target-attached")}-${targetAttach.left}`);
     }
 
-    const all = [];
+    const all: string[] = [];
     sides.forEach(side => {
       all.push(`${this.getClass("element-attached")}-${side}`);
       all.push(`${this.getClass("target-attached")}-${side}`);
@@ -937,6 +1063,7 @@ class TetherClass extends Evented {
     let left = targetPos.left + targetOffset.left - offset.left;
     let top = targetPos.top + targetOffset.top - offset.top;
 
+    let scrollbarSize: any;
     for (let i = 0; i < TetherBase.modules.length; ++i) {
       const module = TetherBase.modules[i];
       const ret = module.position.call(this, {
@@ -965,8 +1092,8 @@ class TetherClass extends Evented {
     // We describe the position three different ways to give the optimizer
     // a chance to decide the best possible way to position the element
     // with the fewest repaints.
-    const next = {
-      // It's position relative to the page (absolute positioning when
+    const next: IHistoryItem = {
+      // Its position relative to the page (absolute positioning when
       // the element is a child of the body)
       page: {
         top: top,
@@ -985,7 +1112,6 @@ class TetherClass extends Evented {
     var doc = this.target.ownerDocument;
     var win = doc.defaultView;
 
-    let scrollbarSize;
     if (win.innerHeight > doc.documentElement.clientHeight) {
       scrollbarSize = this.cache("scrollbar-size", getScrollBarSize);
       next.viewport.bottom -= scrollbarSize.height;
@@ -997,8 +1123,9 @@ class TetherClass extends Evented {
     }
 
     if (
-      ["", "static"].indexOf(doc.body.style.position) === -1 ||
-      ["", "static"].indexOf(doc.body.parentElement.style.position) === -1
+      next.page &&
+      (["", "static"].indexOf(doc.body.style.position) === -1 ||
+        ["", "static"].indexOf(doc.body.parentElement.style.position) === -1)
     ) {
       // Absolute positioning in the body will be relative to the page, not the 'initial containing block'
       next.page.bottom = doc.body.scrollHeight - top - height;
@@ -1019,12 +1146,20 @@ class TetherClass extends Evented {
       const offsetParentStyle = getComputedStyle(offsetParent);
       const offsetParentSize = offsetPosition;
 
-      const offsetBorder = {};
-      ["Top", "Left", "Bottom", "Right"].forEach(side => {
-        offsetBorder[side.toLowerCase()] = parseFloat(
-          offsetParentStyle[`border${side}Width`]
-        );
-      });
+      const offsetBorder = {
+        top: offsetParentStyle.borderTopWidth
+          ? parseFloat(offsetParentStyle.borderTopWidth)
+          : 0,
+        left: offsetParentStyle.borderLeftWidth
+          ? parseFloat(offsetParentStyle.borderLeftWidth)
+          : 0,
+        bottom: offsetParentStyle.borderBottomWidth
+          ? parseFloat(offsetParentStyle.borderBottomWidth)
+          : 0,
+        right: offsetParentStyle.borderRightWidth
+          ? parseFloat(offsetParentStyle.borderRightWidth)
+          : 0
+      };
 
       offsetPosition.right =
         doc.body.scrollWidth -
@@ -1038,11 +1173,14 @@ class TetherClass extends Evented {
         offsetBorder.bottom;
 
       if (
+        next.page &&
         next.page.top >= offsetPosition.top + offsetBorder.top &&
+        next.page.bottom &&
         next.page.bottom >= offsetPosition.bottom
       ) {
         if (
           next.page.left >= offsetPosition.left + offsetBorder.left &&
+          next.page.right &&
           next.page.right >= offsetPosition.right
         ) {
           // We're within the visible part of the target's scroll parent
@@ -1083,21 +1221,19 @@ class TetherClass extends Evented {
   }
 
   // THE ISSUE
-  move(pos) {
-    if (!(typeof this.element.parentNode !== "undefined")) {
+  move(pos: IHistoryItem) {
+    if (typeof this.element.parentNode === "undefined") {
       return;
     }
 
-    const same = {};
-
-    for (let type in pos) {
+    const same: IHistoryItem = { ...pos };
+    for (const type in pos) {
       same[type] = {};
 
-      for (let key in pos[type]) {
+      for (const key in pos[type]) {
         let found = false;
 
-        for (let i = 0; i < this.history.length; ++i) {
-          const point = this.history[i];
+        for (const point in this.history) {
           if (
             typeof point[type] !== "undefined" &&
             !within(point[type][key], pos[type][key])
@@ -1113,20 +1249,45 @@ class TetherClass extends Evented {
       }
     }
 
-    let css = { top: "", left: "", right: "", bottom: "" };
+    interface ITranscribeCss {
+      top: string | 0;
+      left: string | 0;
+      right: string | 0;
+      bottom: string | 0;
+      position: "" | "fixed" | "absolute";
+    }
 
-    const transcribe = (_same, _pos) => {
+    const css: ITranscribeCss = {
+      top: "",
+      left: "",
+      right: "",
+      bottom: "",
+      position: ""
+    };
+
+    interface ITranscribeSame {
+      top: any;
+      left: any;
+    }
+    interface ITranscribePos {
+      top: any;
+      left: any;
+      bottom?: any;
+      right?: any;
+    }
+    const transcribe = (_same: ITranscribeSame, _pos: ITranscribePos) => {
       const hasOptimizations =
         typeof this.options.optimizations !== "undefined";
       const gpu = hasOptimizations ? this.options.optimizations.gpu : null;
       if (gpu !== false) {
-        let yPos, xPos;
+        let yPos: number;
+        let xPos: number;
         if (_same.top) {
           css.top = 0;
           yPos = _pos.top;
         } else {
           css.bottom = 0;
-          yPos = -_pos.bottom;
+          yPos = -(_pos.bottom || 0);
         }
 
         if (_same.left) {
@@ -1134,7 +1295,7 @@ class TetherClass extends Evented {
           xPos = _pos.left;
         } else {
           css.right = 0;
-          xPos = -_pos.right;
+          xPos = -(_pos.right || 0);
         }
 
         if (window.matchMedia) {
@@ -1151,12 +1312,14 @@ class TetherClass extends Evented {
           }
         }
 
-        css[transformKey] = `translateX(${xPos}px) translateY(${yPos}px)`;
+        if (transformKey) {
+          css[transformKey] = `translateX(${xPos}px) translateY(${yPos}px)`;
 
-        if (transformKey !== "msTransform") {
-          // The Z transform will keep this in the GPU (faster, and prevents artifacts),
-          // but IE9 doesn't support 3d transforms and will choke.
-          css[transformKey] += " translateZ(0)";
+          if (transformKey !== "msTransform") {
+            // The Z transform will keep this in the GPU (faster, and prevents artifacts),
+            // but IE9 doesn't support 3d transforms and will choke.
+            css[transformKey] += " translateZ(0)";
+          }
         }
       } else {
         if (_same.top) {
@@ -1175,6 +1338,7 @@ class TetherClass extends Evented {
 
     let moved = false;
     if (
+      same.page &&
       (same.page.top || same.page.bottom) &&
       (same.page.left || same.page.right)
     ) {
@@ -1203,7 +1367,7 @@ class TetherClass extends Evented {
         });
       }
 
-      transcribe(same.offset, pos.offset);
+      transcribe(same.offset, pos.offset!);
       moved = true;
     } else {
       css.position = "absolute";
@@ -1217,9 +1381,13 @@ class TetherClass extends Evented {
         }
       } else {
         let offsetParentIsBody = true;
-        const isFullscreenElement = e => {
-          let d = e.ownerDocument;
-          let fe =
+        const isFullscreenElement = (e: Node) => {
+          const d: any | null = e.ownerDocument;
+          if (!d) {
+            return false;
+          }
+
+          const fe =
             d.fullscreenElement ||
             d.webkitFullscreenElement ||
             d.mozFullScreenElement ||
@@ -1249,11 +1417,11 @@ class TetherClass extends Evented {
     }
 
     // Any css change will trigger a repaint, so let's avoid one if nothing changed
-    const writeCSS = {};
+    const writeCSS: object = {};
     let write = false;
-    for (let key in css) {
-      let val = css[key];
-      let elVal = this.element.style[key];
+    for (const key in css) {
+      const val = css[key];
+      const elVal = this.element.style[key];
 
       if (elVal !== val) {
         write = true;
@@ -1263,20 +1431,23 @@ class TetherClass extends Evented {
 
     if (write) {
       defer(() => {
-        extend(this.element.style, writeCSS);
+        (extend as any)(this.element.style, writeCSS);
         this.trigger("repositioned");
       });
     }
   }
 }
 
-TetherClass.modules = [];
+(TetherClass as any).modules = [];
 
 TetherBase.position = position;
 
 const BOUNDS_FORMAT = ["left", "top", "right", "bottom"];
 
-function getBoundingRect(tether, to) {
+function getBoundingRect(
+  tether: TetherClass,
+  to: string | Document | HTMLElement | number[]
+) {
   if (to === "scrollParent") {
     to = tether.scrollParents[0];
   } else if (to === "window") {
@@ -1288,11 +1459,11 @@ function getBoundingRect(tether, to) {
     ];
   }
 
-  if (to === document) {
-    to = to.documentElement;
+  if (to === document && document.documentElement) {
+    to = document.documentElement;
   }
 
-  if (typeof to.nodeType !== "undefined") {
+  if (to instanceof Element && typeof to.nodeType !== "undefined") {
     const node = to;
     const size = getBounds(to);
     const pos = size;
@@ -1301,12 +1472,14 @@ function getBoundingRect(tether, to) {
     to = [pos.left, pos.top, size.width + pos.left, size.height + pos.top];
 
     // Account any parent Frames scroll offset
-    if (node.ownerDocument !== document) {
-      let win = node.ownerDocument.defaultView;
-      to[0] += win.pageXOffset;
-      to[1] += win.pageYOffset;
-      to[2] += win.pageXOffset;
-      to[3] += win.pageYOffset;
+    if (node.ownerDocument && node.ownerDocument !== document) {
+      const win = node.ownerDocument.defaultView;
+      if (win) {
+        to[0] += win.pageXOffset;
+        to[1] += win.pageYOffset;
+        to[2] += win.pageXOffset;
+        to[3] += win.pageYOffset;
+      }
     }
 
     BOUNDS_FORMAT.forEach((side, i) => {
@@ -1323,7 +1496,7 @@ function getBoundingRect(tether, to) {
 }
 
 TetherBase.modules.push({
-  position({ top, left, targetAttachment }) {
+  position({ top, left, targetAttachment }: any) {
     if (!this.options.constraints) {
       return true;
     }
@@ -1354,6 +1527,7 @@ TetherBase.modules.push({
       if (outOfBoundsClass) {
         allClasses.push(outOfBoundsClass);
       }
+
       if (pinnedClass) {
         allClasses.push(pinnedClass);
       }
@@ -1365,19 +1539,21 @@ TetherBase.modules.push({
       });
     });
 
-    const addClasses = [];
+    const addClasses: string[] = [];
 
-    const tAttachment = extend({}, targetAttachment);
-    const eAttachment = extend({}, this.attachment);
+    const tAttachment = (extend as any)({}, targetAttachment);
+    const eAttachment = (extend as any)({}, this.attachment);
 
     this.options.constraints.forEach(constraint => {
-      let { to, attachment, pin } = constraint;
+      let { attachment, pin } = constraint;
+      const { to } = constraint;
 
       if (typeof attachment === "undefined") {
         attachment = "";
       }
 
-      let changeAttachX, changeAttachY;
+      let changeAttachX: string;
+      let changeAttachY: string;
       if (attachment.indexOf(" ") >= 0) {
         [changeAttachY, changeAttachX] = attachment.split(" ");
       } else {
@@ -1542,8 +1718,8 @@ TetherBase.modules.push({
 
       pin = pin || [];
 
-      const pinned = [];
-      const oob = [];
+      const pinned: string[] = [];
+      const oob: string[] = [];
 
       if (top < bounds[1]) {
         if (pin.indexOf("top") >= 0) {
@@ -1582,7 +1758,7 @@ TetherBase.modules.push({
       }
 
       if (pinned.length) {
-        let pinnedClass;
+        let pinnedClass: string;
         if (typeof this.options.pinnedClass !== "undefined") {
           pinnedClass = this.options.pinnedClass;
         } else {
@@ -1596,7 +1772,7 @@ TetherBase.modules.push({
       }
 
       if (oob.length) {
-        let oobClass;
+        let oobClass: string;
         if (typeof this.options.outOfBoundsClass !== "undefined") {
           oobClass = this.options.outOfBoundsClass;
         } else {
@@ -1642,7 +1818,7 @@ TetherBase.modules.push({
 });
 
 TetherBase.modules.push({
-  position({ top, left }) {
+  position({ top, left }: any) {
     const { height, width } = this.cache("element-bounds", () => {
       return getBounds(this.element);
     });
@@ -1652,7 +1828,7 @@ TetherBase.modules.push({
     const bottom = top + height;
     const right = left + width;
 
-    const abutted = [];
+    const abutted: string[] = [];
     if (top <= targetPos.bottom && bottom >= targetPos.top) {
       ["left", "right"].forEach(side => {
         const targetPosSide = targetPos[side];
@@ -1671,8 +1847,8 @@ TetherBase.modules.push({
       });
     }
 
-    const allClasses = [];
-    const addClasses = [];
+    const allClasses: string[] = [];
+    const addClasses: string[] = [];
 
     const sides = ["left", "top", "right", "bottom"];
     allClasses.push(this.getClass("abutted"));
@@ -1700,7 +1876,7 @@ TetherBase.modules.push({
 });
 
 TetherBase.modules.push({
-  position({ top, left }) {
+  position({ top, left }: any) {
     if (!this.options.shift) {
       return undefined;
     }
@@ -1710,15 +1886,16 @@ TetherBase.modules.push({
       shift = this.options.shift.call(this, { top, left });
     }
 
-    let shiftTop, shiftLeft;
+    let shiftTop: number;
+    let shiftLeft: number;
     if (typeof shift === "string") {
       shift = shift.split(" ");
       shift[1] = shift[1] || shift[0];
 
-      [shiftTop, shiftLeft] = shift;
+      const [shiftTopStr, shiftLeftStr] = shift;
 
-      shiftTop = parseFloat(shiftTop, 10);
-      shiftLeft = parseFloat(shiftLeft, 10);
+      shiftTop = parseFloat(shiftTopStr);
+      shiftLeft = parseFloat(shiftLeftStr);
     } else {
       [shiftTop, shiftLeft] = [shift.top, shift.left];
     }
@@ -1730,6 +1907,6 @@ TetherBase.modules.push({
   }
 });
 
-let Tether = extend(TetherClass, TetherBase);
+const Tether = (extend as any)(TetherClass, TetherBase);
 
 export default Tether;

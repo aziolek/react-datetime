@@ -37,7 +37,10 @@ class TetherComponent extends Component<TetherComponentProps, never> {
         }
       ]
     });
-    this.tetherInstance.position();
+
+    if (this.tetherInstance) {
+      this.tetherInstance.position();
+    }
   }
 
   componentWillUnmount() {
