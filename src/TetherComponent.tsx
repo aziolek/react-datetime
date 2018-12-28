@@ -8,10 +8,10 @@ interface TetherComponentProps {
 
 class TetherComponent extends Component<TetherComponentProps, never> {
   // The DOM node of the target, obtained using ref in the render prop
-  targetNode = React.createRef();
+  targetNode = React.createRef<any>();
 
   // The DOM node of the element, obtained using ref in the render prop
-  elementNode = React.createRef();
+  elementNode = React.createRef<any>();
 
   wrapperNode = React.createRef<any>();
 
@@ -27,15 +27,7 @@ class TetherComponent extends Component<TetherComponentProps, never> {
 
     this.tetherInstance = new Tether({
       target: this.targetNode.current,
-      element: this.wrapperNode.current,
-      attachment: "top left",
-      targetAttachment: "bottom left",
-      constraints: [
-        {
-          to: "scrollParent",
-          attachment: "together both"
-        }
-      ]
+      element: this.wrapperNode.current
     });
 
     if (this.tetherInstance) {
