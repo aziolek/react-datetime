@@ -21,7 +21,7 @@
     "@nateradebaugh/react-datetime": "link:..",
     "date-fns": "^1.30.1",
     "react": "^16.8.2",
-    "react-dom": "^16.6.3",
+    "react-dom": "^16.8.2",
     "react-scripts": "^2.1.5"
   },
   "devDependencies": {
