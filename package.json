@@ -131,7 +131,7 @@
     "prettier": "^1.14.3",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
-    "react-test-renderer": "^16.6.3",
+    "react-test-renderer": "^16.8.2",
     "ts-jest": "^23.10.4",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
